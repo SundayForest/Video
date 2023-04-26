@@ -1,0 +1,9 @@
+﻿global using Microsoft.AspNetCore.Identity;
+global using VideoDomain.Value;
+global using VideoDomain.Entity;
+global using System.Security.Cryptography;
+global using Microsoft.Extensions.Options;
+global using System.Security.Claims;
+global using System.Text;
+global using VideoDomain.Respository;
+global using Microsoft.AspNetCore.SignalR;
