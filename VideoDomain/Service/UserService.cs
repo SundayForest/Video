@@ -43,16 +43,15 @@ namespace VideoDomain.Service
         }
         public async Task<bool> ChangePwdAsync(string userName, string oldPwd, string newPwd) {
             var u = await userRespository.FindUserAsync(userName);
+            if (u == null) {
+                return false;
+            }
             var res = await userRespository.CheckPwd(u, oldPwd);
             if (res)
             {
                 await userRespository.ChangePwdAsync(u,newPwd);
-                return true;
             }
-            else
-            {
-                return false;
-            }
+            return res;
         }
         public async Task<User?> RegisterAsync(string username,string pwd) {
             var user = await userRespository.FindUserAsync(username);
@@ -72,8 +71,8 @@ namespace VideoDomain.Service
             {
                 return;
             }
-            await userRespository.AddHistoryAsync(user, file);
-             
+            await cachingRepository.AddOrSetFileHitChangeAsync(file.FileHash);
+            
         }
         private async Task<string> BuildTokenAsync(User user) { 
             var roles = await userRespository.FindRolesAsync(user);
@@ -95,18 +94,49 @@ namespace VideoDomain.Service
         {
             return await userRespository.FindUserAsync(username);
         }
-        public async Task<List<AuthInfo>> FindAttentionsAsync(string username) {
+        public async Task<HashSet<AuthInfo>?> FindAttentionsAsync(string username) {
             var user = await userRespository.FindUserAsync(username);
-            if(user == null)
+            if (user == null)
             {
                 return null;
             }
-            return await userRespository.FindAttentionsAsync(user);
+            var attentions = await cachingRepository.FindAttentionsAsync(user.Id);
+            if (attentions == null)
+            {
+                attentions = await userRespository.FindAttentionsAsync(user);
+                //更新缓存
+                await cachingRepository.SetAttentionsAsync(user.Id, attentions);
+            }
+            return attentions;
         }
 
-        public Task<bool> AddAttention(string username, long authId)
+        public async Task<bool> AddAttention(string username, long authId)
         {
-            throw new NotImplementedException();
+            var auth = await userRespository.FindAuthAsync(authId);
+            if (auth == null) {
+                return false;
+            }
+            //不复用 findattentions（） ，否则可能会更新 2 次缓存
+            var user = await userRespository.FindUserAsync(username);
+            if (user == null)
+            {
+                return false;
+            }
+            var attentions = await cachingRepository.FindAttentionsAsync(user.Id);
+            if (attentions == null)
+            {
+                attentions = await userRespository.FindAttentionsAsync(user);
+                if(attentions.Contains(auth))
+                {
+                    //已经关注过，直接返回
+                    return false;
+                }
+                //更新数据库和缓存
+                user.AddAttention(auth);
+                attentions.Add(auth);
+                await cachingRepository.SetAttentionsAsync(user.Id,attentions);
+            }
+            return true;
         }
     }
 }

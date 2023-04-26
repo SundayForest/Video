@@ -1,6 +1,6 @@
 ﻿namespace VideoDomain.Entity
 {
-    public class User : IdentityUser<Guid>
+    public class User : IdentityUser<long>
     {
         public DateTime CreateTime { get; private set; }
         public UserLoginHistory LoginHistory { get; private set; }
@@ -11,7 +11,6 @@
         private User() { }
         public User(string userName) : base(userName)
         {
-            this.Id = Guid.NewGuid();
             this.CreateTime = DateTime.Now;
             this.AuthInfo = AuthInfo.InitAuthInfo(this);
         }

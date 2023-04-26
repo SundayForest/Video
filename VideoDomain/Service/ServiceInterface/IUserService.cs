@@ -13,7 +13,7 @@ namespace VideoDomain.Service.ServiceInterface
         Task<User?> RegisterAsync(string username, string pwd);
         Task UserDownAsync(string userName, TheFile file);
         Task<User?> FindUserAsync(string username);
-        Task<List<AuthInfo>> FindAttentionsAsync(string username);
+        Task<HashSet<AuthInfo>> FindAttentionsAsync(string username);
         Task<bool> AddAttention(string username,long authId);
     }
 }

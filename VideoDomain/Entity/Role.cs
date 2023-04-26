@@ -1,9 +1,6 @@
 ﻿namespace VideoDomain.Entity
 {
-    public class Role : IdentityRole<Guid>
+    public class Role : IdentityRole<long>
     {
-        public Role() { 
-            this.Id = new Guid();
-        }
     }
 }

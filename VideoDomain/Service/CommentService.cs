@@ -27,13 +27,13 @@ namespace VideoDomain.Service
         public async Task<Page<List<Comment>>> PageWithFileComment(int index, int size, string filehash)
         {
             var data = await commentRepository.PageWithFileComment(index, size, filehash);
-            int total = await cachingRepository.FindFileCommentSizeAsync(filehash);
-            if (total == -1)
+            int? total = await cachingRepository.FindFileCommentSizeAsync(filehash);
+            if (total == null)
             {
                 total = await commentRepository.GetFileCommentSizeAsync(filehash);
-                await cachingRepository.SetFileCommentSizeAsync(filehash,total);
+                await cachingRepository.SetFileCommentSizeAsync(filehash,total.Value);
             }
-            return new(index,size,total,data);
+            return new(index,size,total.Value,data);
         }
         /*
          * 用户的数量感觉比较多？要是保存到缓存里面会不会太多？存疑

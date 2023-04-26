@@ -26,12 +26,8 @@ namespace VideoInfrastructure.Respository
             throw new NotImplementedException();
         }
 
-        //public async Task AddHistoryAsync(User user, TheFile theFile)
-        //{
-        //    user.AddHistory(theFile);
-        //}
 
-        public async Task AddNewLoginHistoryAsync(Guid userId)
+        public async Task AddNewLoginHistoryAsync(long userId)
         {
             UserLoginHistory userLoginHistory = UserLoginHistory.Init(userId);
             db.UserLoginHistorys.Add(userLoginHistory); 
@@ -77,7 +73,7 @@ namespace VideoInfrastructure.Respository
             return await userManager.CheckPasswordAsync(user,pwd);
         }
 
-        public Task<List<AuthInfo>> FindAttentionsAsync(User user)
+        public Task<HashSet<AuthInfo>> FindAttentionsAsync(User user)
         {
             throw new NotImplementedException();
         }
@@ -93,7 +89,7 @@ namespace VideoInfrastructure.Respository
             return user;    
         }
 
-        public Task<bool> IsAuthExist(long id)
+        public Task<AuthInfo> FindAuthAsync(long id)
         {
             throw new NotImplementedException();
         }

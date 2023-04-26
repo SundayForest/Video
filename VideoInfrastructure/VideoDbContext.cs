@@ -3,7 +3,7 @@
 
 namespace VideoInfrastructure
 {
-    public class VideoDbContext :IdentityDbContext<User, Role, Guid>
+    public class VideoDbContext :IdentityDbContext<User, Role, long>
     {
         public DbSet<Tag> Tags { get; set; }
         public DbSet<TheFile> TheFiles { get; set; }

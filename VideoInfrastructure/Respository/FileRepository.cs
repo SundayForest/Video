@@ -58,6 +58,11 @@ namespace VideoInfrastructure.Respository
             return theFiles.FirstOrDefault();
         }
 
+        public Task<int?> FindTagSizeAsync(long id)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<Tag?> FindTagWithFilesOrderAsync(int tagId)
         {
             var tags = db.Tags.Where(t => t.Id == tagId).Include(t => t.TheFiles).ToArray();
@@ -68,12 +73,11 @@ namespace VideoInfrastructure.Respository
             var tag = tags.FirstOrDefault();
             tag!.TheFiles.OrderBy(f=>f.Hit);
             return tag;
-            
         }
 
-        public async Task<List<Tag>> GetAllTag()
+        public async Task<HashSet<Tag>> GetAllTag()
         {
-            return db.Tags.ToList();
+            return new HashSet<Tag>(db.Tags.ToList());
         }
 
         public async Task<List<TheFile>> PageFileOrderAsync(int page, int pageSize, int tagId, DayType dayType)
@@ -122,6 +126,30 @@ namespace VideoInfrastructure.Respository
             using Stream outStream = File.OpenWrite(fullPath);
             await stream.CopyToAsync(outStream);
             return new Uri(url);
+        }
+
+        //返回添加成功的tag，之后可以依次增加tag里的数量
+        public Task<List<Tag>> UpdateFileInfoAsync(TheFile file, List<Tag>? tags, string? des, string? filename,HashSet<Tag> tagSet)
+        {
+            List<Tag> list = new List<Tag>();
+            if (tags != null)
+            {
+                foreach (var tag in tags) {
+                    //存在该 tag
+                    if (tagSet.Contains(tag)) { 
+                        list.Add(tag);  
+                    }
+                }
+                file.ChangeTag(list);
+            }
+            if (des != null) { 
+                file.UpdateDescription(des);
+            }
+            if(filename != null)
+            {
+                file.UpdateName(filename);
+            }
+            return Task.FromResult(list);
         }
     }
 }

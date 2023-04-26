@@ -9,7 +9,7 @@ namespace VideoDomain.Entity
     public record Comment
     {
         public long Id { get; private set; }
-        public Guid UserId { get; private set;}
+        public long UserId { get; private set;}
         public User Sayer { get; private set; }
         public TheFile TheFile { get; private set; }
         public string FileHash { get; private set; }

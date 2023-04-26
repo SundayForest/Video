@@ -13,7 +13,8 @@ namespace VideoInfrastructure.Migrations
                 name: "T_Roles",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true)
@@ -30,7 +31,6 @@ namespace VideoInfrastructure.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Contain = table.Column<long>(type: "bigint", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     DeletedTime = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -46,7 +46,7 @@ namespace VideoInfrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    RoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    RoleId = table.Column<long>(type: "bigint", nullable: false),
                     ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
@@ -67,7 +67,7 @@ namespace VideoInfrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<long>(type: "bigint", nullable: false),
                     ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
@@ -83,7 +83,7 @@ namespace VideoInfrastructure.Migrations
                     LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ProviderKey = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ProviderDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    UserId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -94,8 +94,8 @@ namespace VideoInfrastructure.Migrations
                 name: "AspNetUserRoles",
                 columns: table => new
                 {
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    RoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    UserId = table.Column<long>(type: "bigint", nullable: false),
+                    RoleId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -112,7 +112,7 @@ namespace VideoInfrastructure.Migrations
                 name: "AspNetUserTokens",
                 columns: table => new
                 {
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<long>(type: "bigint", nullable: false),
                     LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Value = table.Column<string>(type: "nvarchar(max)", nullable: true)
@@ -128,7 +128,8 @@ namespace VideoInfrastructure.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    UserId = table.Column<long>(type: "bigint", nullable: false),
+                    Fan = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -143,6 +144,7 @@ namespace VideoInfrastructure.Migrations
                     Path = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PreviousImgUri = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FileName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Descrition = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Size = table.Column<long>(type: "bigint", nullable: false),
                     AuthId = table.Column<long>(type: "bigint", nullable: false),
                     CreateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -188,9 +190,9 @@ namespace VideoInfrastructure.Migrations
                 name: "T_Users",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     CreateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    DeletedTime = table.Column<DateTime>(type: "datetime2", nullable: true),
                     AuthId = table.Column<long>(type: "bigint", nullable: false),
                     TheFileFileHash = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -210,8 +212,7 @@ namespace VideoInfrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_T_Users", x => x.Id)
-                        .Annotation("SqlServer:Clustered", false);
+                    table.PrimaryKey("PK_T_Users", x => x.Id);
                     table.ForeignKey(
                         name: "FK_T_Users_T_TheFile_TheFileFileHash",
                         column: x => x.TheFileFileHash,
@@ -224,7 +225,7 @@ namespace VideoInfrastructure.Migrations
                 columns: table => new
                 {
                     AttentionsId = table.Column<long>(type: "bigint", nullable: false),
-                    FansId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    FansId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -249,7 +250,7 @@ namespace VideoInfrastructure.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<long>(type: "bigint", nullable: false),
                     FileHash = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false),
                     DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -278,7 +279,7 @@ namespace VideoInfrastructure.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<long>(type: "bigint", nullable: false),
                     CreateDateTime = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -370,6 +371,11 @@ namespace VideoInfrastructure.Migrations
                 name: "IX_T_Users_TheFileFileHash",
                 table: "T_Users",
                 column: "TheFileFileHash");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_T_Users_UserName",
+                table: "T_Users",
+                column: "UserName");
 
             migrationBuilder.CreateIndex(
                 name: "UserNameIndex",

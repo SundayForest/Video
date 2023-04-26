@@ -13,8 +13,7 @@ namespace VideoDomain.Entity
         public List<User> Users { get; private set; }
         public AuthInfo Auth { get; private set; }
         public DateTime CreateTime { get; private set; }
-        public HashSet<Tag> Tags { get; private set; }
-        public bool IsDeleted { get; private set; }
+        public List<Tag> Tags { get; private set; }
         public long Hit { get; private set; }
         private TheFile() { }
         public static TheFile InitFile(Uri path,Uri previousImgUri,AuthInfo auth, string FileName,string FileHash,long Size)
@@ -28,19 +27,14 @@ namespace VideoDomain.Entity
             file.PreviousImgUri = previousImgUri;
             file.Hit = 0;
             file.CreateTime = DateTime.Now;
-            file.IsDeleted = false;
             return file;
         }
         public void ChangeHit(long hit) {
             this.Hit += hit;
         }
-        public void AddTag(Tag tag) {
-            Tags.Add(tag);
+        public void ChangeTag(List<Tag> tags) {
+            Tags = tags;
         }
-        public void Delete()
-        {
-            this.IsDeleted = true;
-        } 
         public void UpdateName(string filename) { 
             this.FileName = filename;
         }
