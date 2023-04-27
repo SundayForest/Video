@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using VideoDomain.Respository;
 using VideoDomain.Value;
@@ -10,74 +11,166 @@ namespace VideoInfrastructure.Respository
 {
     public class CachingResposity : ICachingRepository
     {
-        public Task AddOrSetFileHitChangeAsync(string filehash)
+        private readonly CacheHelp cacheHelp;
+
+        public CachingResposity(CacheHelp cacheHelp)
         {
-            throw new NotImplementedException();
+            this.cacheHelp = cacheHelp;
         }
 
-        public Task<HashSet<AuthInfo>?> FindAttentionsAsync(long userId)
+        public async Task AddOrSetFileHitChangeAsync(string filehash)
         {
-            throw new NotImplementedException();
+            await cacheHelp.AddWithTimeAsync(ConstValue.FILE_HIT +  filehash,ConstValue.TWO_DAY);
         }
 
-        public Task<List<TheFile>?> FindAuthWorksAsync(long authId)
+        public async Task<HashSet<AuthInfo>?> FindAttentionsAsync(long userId)
         {
-            throw new NotImplementedException();
+            var json =  await cacheHelp.GetStringWithTimeAsync(ConstValue.USER_ATTENTION +  userId.ToString(),ConstValue.TWO_DAY);
+            if(json == null)
+            {
+                return null;
+            }
+            return JsonSerializer.Deserialize<HashSet<AuthInfo>>(json);
         }
 
-        public Task<int?> FindFileCommentSizeAsync(string filehash)
+        public async Task<List<TheFile>?> FindAuthWorksAsync(long authId)
         {
-            throw new NotImplementedException();
+            var json = await cacheHelp.GetStringWithTimeAsync(ConstValue.AUTH_WORKS +  authId.ToString(),ConstValue.TWO_DAY);
+            if (json == null) { 
+                return null;
+            }
+            return JsonSerializer.Deserialize<List<TheFile>>(json);
         }
 
-        public Task<int?> FindFileHitChangeAsync(string filehash)
+        public async Task<List<Comment>?> FindFileCommentAsync(string filehash)
         {
-            throw new NotImplementedException();
+            var json = await cacheHelp.GetStringWithTimeAsync(ConstValue.FILE_COMMENT + filehash,ConstValue.TWO_DAY);
+            if (json == null)
+            {
+                return null;
+            }
+            return JsonSerializer.Deserialize<List<Comment>>(json);
         }
 
-        public Task<List<TheFile>?> FindFilePage(int tagId, DayType dayType)
+        public async Task<int> FindFileCommentSizeAsync(string filehash)
         {
-            throw new NotImplementedException();
+            var str = await cacheHelp.GetStringWithTimeAsync(ConstValue.FILE_COMMENT_SIZE + filehash,ConstValue.TWO_DAY);
+            int num = 0;
+            if (str != null)
+            {
+                int.TryParse(str,out num);
+            }
+            return num;
         }
 
-        public Task<int?> FindTagSizeAsync(int tagId)
+        public async Task<int?> FindFileHitChangeAsync(string filehash)
         {
-            throw new NotImplementedException();
+            return await cacheHelp.GetNumAsync(ConstValue.FILE_HIT + filehash);
         }
 
-        public Task<string?> FindTokenAsync(string username)
+        public async Task<List<TheFile>?> FindFilePage(int tagId, DayType dayType)
         {
-            throw new NotImplementedException();
+            var json = await cacheHelp.GetStringAsync(ConstValue.TOP_TAG_FILE + dayType + ":" + tagId );
+            if (json == null) {
+                return null;
+            }
+            return JsonSerializer.Deserialize<List<TheFile>>(json);
         }
 
-        public Task SetAttentionsAsync(long userId, HashSet<AuthInfo> auths)
+        public async Task<int> FindTagSizeAsync(int tagId)
         {
-            throw new NotImplementedException();
+            var str = await cacheHelp.GetStringAsync(ConstValue.TAGS_FILE_SORTED_LENGTH + tagId);
+            int num = 0;
+            if (str != null)
+            {
+                int.TryParse(str, out num);
+            }
+            return num;
         }
 
-        public Task SetAuthWorksAsync(long authId, List<TheFile> files)
+        public async Task<string?> FindTokenAsync(string username)
         {
-            throw new NotImplementedException();
+            return await cacheHelp.GetStringAsync(ConstValue.USER_TOKEN_KEY + username);
         }
 
-        public Task SetFileCommentSizeAsync(string filehash, int size)
+        public async Task<List<Comment>?> FindUserCommentAsync(string userId)
         {
-            throw new NotImplementedException();
+            var json = await cacheHelp.GetStringWithTimeAsync(ConstValue.USER_COMMENT + userId, ConstValue.TWO_DAY);
+            if(json == null) { return null;}
+            return JsonSerializer.Deserialize<List<Comment>>(json);
         }
 
-        public Task SetFilePage(int tagId, DayType dayType, List<TheFile> files)
+        public async Task<int> FindUserCommentSizeAsync(string userId)
         {
-            throw new NotImplementedException();
+            var str = await cacheHelp.GetStringWithTimeAsync(ConstValue.USER_COMMENT_SIZE + userId, ConstValue.TWO_DAY);
+            int num = 0;
+            if (str != null)
+            {
+                int.TryParse(str, out num);
+            }
+            return num;
         }
 
-        public Task SetOrChangeTagSizeAsync(int tagId, int size)
+        public async Task<long> GetSortedLength(string key)
         {
-            throw new NotImplementedException();
+            return await cacheHelp.GetSortedLengthAsync(ConstValue.TAGS_FILE_SORTED_LENGTH +  key);
         }
 
-        public Task SetTokenAsync(string username, string tokens)
+        public async Task SetAttentionsAsync(long userId, HashSet<AuthInfo> auths)
         {
-            throw new NotImplementedException();
+            string json = JsonSerializer.Serialize(auths);
+            await cacheHelp.SetStringWithTimeAsync(ConstValue.USER_ATTENTION + userId, json, ConstValue.TWO_DAY);
+        }
+
+        public async Task SetAuthWorksAsync(long authId, List<TheFile> files)
+        {
+            string json = JsonSerializer.Serialize(files);
+            await cacheHelp.SetStringWithTimeAsync(ConstValue.AUTH_WORKS + authId,json,ConstValue.TWO_DAY);
+        }
+
+        public async Task SetFileCommentAsync(string filehash, List<Comment> coms)
+        {
+            string json = JsonSerializer.Serialize(coms);
+            await cacheHelp.SetStringWithTimeAsync(ConstValue.FILE_COMMENT + filehash,json,ConstValue.TWO_DAY);
+        }
+
+        public async Task SetFileCommentSizeAsync(string filehash, int size)
+        {
+            await cacheHelp.SetStringWithTimeAsync(ConstValue.FILE_COMMENT_SIZE + filehash,size.ToString(),ConstValue.TWO_DAY);
+        }
+
+        public async Task SetFilePage(int tagId, DayType dayType, List<TheFile> files)
+        {
+            string json = JsonSerializer.Serialize(files);
+            await cacheHelp.SetStringAsync(ConstValue.TOP_TAG_FILE + dayType + ":" + tagId, json);
+        }
+
+        public async Task SetOrChangeTagSizeAsync(int tagId, int size)
+        {
+            if (size == 1 || size == -1)
+            {
+                await cacheHelp.AddAsync(ConstValue.TAGS_FILE_SORTED_LENGTH + tagId);
+            }
+            else
+            {
+                await cacheHelp.SetStringAsync(ConstValue.TAGS_FILE_SORTED_LENGTH + tagId,size.ToString());
+            }
+        }
+
+        public async Task SetTokenAsync(string username, string tokens)
+        {
+            await cacheHelp.SetStringWithTimeAsync(ConstValue.USER_TOKEN_KEY + username,tokens,ConstValue.TEN_MINS);
+        }
+
+        public async Task SetUserCommentAsync(string userId, List<Comment> coms)
+        {
+            string json = JsonSerializer.Serialize(coms);
+            await cacheHelp.SetStringWithTimeAsync(ConstValue.USER_COMMENT + userId,json,ConstValue.TWO_DAY);
+        }
+
+        public async Task SetUserCommentSizeAsync(string userId, int size)
+        {
+            await cacheHelp.SetStringWithTimeAsync(ConstValue.USER_COMMENT_SIZE + userId,size.ToString(),ConstValue.TWO_DAY);
         }
     }
 }

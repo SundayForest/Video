@@ -49,9 +49,11 @@ namespace VideoDomain.Service
             return res;
         }
         public async Task<Page<List<TheFile>>> PageFileAsync(int index,int size,int tagId,DayType dayType) {
-            var data = await cachingRepository.FindFilePage(tagId,dayType);
-            if (data != null && data.Count >= (index + 1) * size) {
-                data = data.Skip(index * size).Take(size).ToList();
+            List<TheFile>? data;
+            //判断长度
+            long length = await cachingRepository.GetSortedLength(tagId.ToString());
+            if (length >= (index + 1) * size) {
+                data = (await cachingRepository.FindFilePage(tagId, dayType))!.Skip(index * size).Take(size).ToList();
             }
             //缓存中的数量小于分页归属或者没有缓存
             else

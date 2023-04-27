@@ -35,11 +35,10 @@ namespace VideoDomain.Service
             }
             return new(index,size,total.Value,data);
         }
-        /*
-         * 用户的数量感觉比较多？要是保存到缓存里面会不会太多？存疑
-         */
-        public async Task<Page<List<Comment>>> PageWithSayerComment(int index, int size, Guid userId)
+        //获得用户评论
+        public async Task<Page<List<Comment>>> PageWithSayerComment(int index, int size, long userId)
         {
+            //var coms = await cachingRepository.findc
             return await commentRepository.PageWithSayerComment(index,size,userId);
         }
 

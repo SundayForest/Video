@@ -10,7 +10,7 @@ namespace VideoDomain.Respository
     {
         Task SaveCommentAsync(TheFile file,string content,User sayer);
         Task<List<Comment>> PageWithFileComment(int index,int size,string filehash);
-        Task<Page<List<Comment>>> PageWithSayerComment(int index,int size,Guid userId);
+        Task<Page<List<Comment>>> PageWithSayerComment(int index,int size,long userId);
         Task<int> GetFileCommentSizeAsync(string filehash);
     }
 }
